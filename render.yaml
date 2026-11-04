@@ -2,13 +2,17 @@ services:
   - type: web
     name: sos-scheduler
     runtime: python
-    plan: free
+    plan: starter
     branch: feat/sos-web-dashboard
     buildCommand: pip install uv && uv sync --no-dev
     startCommand: uv run uvicorn api:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /docs
+    disk:
+      name: sos-scheduler-data
+      mountPath: /var/data
+      sizeGB: 1
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.8
-      - key: DATABASE_URL
-        sync: false
+      - key: SQLITE_PATH
+        value: /var/data/scheduler.db
