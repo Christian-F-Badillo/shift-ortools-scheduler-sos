@@ -60,7 +60,7 @@ El departamento es opcional al crear un empleado; el rol es obligatorio. Los nom
 
 ## Dashboard web
 
-La rama `feat/sos-web-dashboard` incorpora un dashboard responsive servido desde el mismo origen que la API. Incluye overview, gestión de empleados, disponibilidad semanal, generación de horarios, calendario de asignaciones, historial de ejecuciones y configuración de restricciones blandas.
+La rama `feat/sos-web-dashboard` incorpora un dashboard responsive servido desde el mismo origen que la API. Incluye overview, gestión de empleados y catálogos de roles/departamentos, disponibilidad semanal, generación de horarios, calendario de asignaciones, historial de ejecuciones y configuración de restricciones blandas.
 
 ## Despliegue en Render
 
