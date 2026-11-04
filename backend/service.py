@@ -14,11 +14,9 @@ import csv
 import io
 from datetime import date, datetime, timedelta
 
-from backend.exceptions import ConflictError, InfeasibleError, NotFoundError
-from sqlalchemy.orm import Session
-
-from backend import repositories as repo
-from backend.models import (
+import repositories as repo
+from exceptions import ConflictError, InfeasibleError, NotFoundError
+from models import (
     AuditLog,
     AvailabilityStatus,
     RunStatus,
@@ -26,8 +24,9 @@ from backend.models import (
     ScheduleRun,
     ScheduleRunConstraint,
 )
-from backend.solver.builder import solve
-from backend.solver.types import SolveResult
+from solver.builder import solve
+from solver.types import SolveResult
+from sqlalchemy.orm import Session
 
 DAY_NAMES = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
 _SOFT_CONSTRAINT_IDS = ("max_staff", "max_role", "no_night_morning")

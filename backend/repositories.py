@@ -5,9 +5,7 @@ No business logic or validation here — that belongs in service.py.
 
 from datetime import date, timedelta
 
-from sqlalchemy.orm import Session, joinedload
-
-from backend.models import (
+from models import (
     Area,
     AvailabilityStatus,
     Employee,
@@ -20,13 +18,14 @@ from backend.models import (
     ShiftRoleRequirement,
     SoftConstraintDef,
 )
-from backend.solver.types import (
+from solver.types import (
     EmployeeInput,
     RoleRequirement,
     ShiftInput,
     SolverInput,
     StaffRequirement,
 )
+from sqlalchemy.orm import Session, joinedload
 
 # ── Catalog reads ──────────────────────────────────────────────────────────────
 
