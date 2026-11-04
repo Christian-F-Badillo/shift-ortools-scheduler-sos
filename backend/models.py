@@ -1,6 +1,5 @@
 import enum
 
-from database import Base
 from sqlalchemy import (
     JSON,
     Boolean,
@@ -14,6 +13,8 @@ from sqlalchemy import (
     UniqueConstraint,
 )
 from sqlalchemy.orm import relationship
+
+from .database import Base
 
 # ── Enumerations ───────────────────────────────────────────────────────────────
 

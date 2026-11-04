@@ -30,6 +30,7 @@ class InfeasibleError(Exception):
     hard constraints.  Carries the diagnostic message from the solver.
     """
 
-    def __init__(self, diagnostic: str):
+    def __init__(self, diagnostic: str, run_id: int | None = None):
         self.diagnostic = diagnostic
+        self.run_id = run_id
         super().__init__(diagnostic)

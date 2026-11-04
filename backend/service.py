@@ -12,11 +12,13 @@ Raises:
 
 import csv
 import io
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 
-import repositories as repo
-from exceptions import ConflictError, InfeasibleError, NotFoundError
-from models import (
+from sqlalchemy.orm import Session
+
+from backend import repositories as repo
+from backend.exceptions import ConflictError, InfeasibleError, NotFoundError
+from backend.models import (
     AuditLog,
     AvailabilityStatus,
     RunStatus,
@@ -24,9 +26,17 @@ from models import (
     ScheduleRun,
     ScheduleRunConstraint,
 )
-from solver.builder import solve
-from solver.types import SolveResult
-from sqlalchemy.orm import Session
+from backend.solver.builder import solve
+from backend.solver.types import SolveResult
+
+from .models import (
+    AuditLog,
+    AvailabilityStatus,
+    RunStatus,
+    ScheduleAssignment,
+    ScheduleRun,
+    ScheduleRunConstraint,
+)
 
 DAY_NAMES = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
 _SOFT_CONSTRAINT_IDS = ("max_staff", "max_role", "no_night_morning")
@@ -195,7 +205,7 @@ def run_schedule(
     """
     run = ScheduleRun(
         week_start_date=week_start,
-        created_at=datetime.utcnow().isoformat(),
+        created_at=datetime.now(timezone.utc),
         status=RunStatus.RUNNING,
     )
     db.add(run)
@@ -257,7 +267,7 @@ def run_schedule(
         raise
 
     if result.feasibility == "none":
-        raise InfeasibleError(result.diagnostic or "No solution found.")
+        raise InfeasibleError(result.diagnostic or "No solution found.", run_id=run.id)
 
     return run, result
 

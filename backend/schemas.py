@@ -14,7 +14,7 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, field_validator
 
-from backend.models import AvailabilityStatus, Feasibility, RunStatus
+from .models import AvailabilityStatus, Feasibility, RunStatus
 
 # ── Shared base ────────────────────────────────────────────────────────────────
 
