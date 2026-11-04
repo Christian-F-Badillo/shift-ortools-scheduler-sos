@@ -88,3 +88,34 @@ uv run python -m pytest -v
 ## 💡 Próximos Pasos (Frontend / Dashboard)
 
 Construcción de una interfaz visual amigable (Dashboard web) para que la supervisión y carga de permisos se haga mediante clics en un calendario interactivo conectado a esta API.
+
+
+---
+
+## Dashboard web
+
+La rama `feat/sos-web-dashboard` incorpora un dashboard operativo servido por FastAPI en el mismo origen que la API.
+
+Incluye Overview, gestión de empleados, disponibilidad semanal, Schedule Builder, calendario de asignaciones, historial de ejecuciones y configuración de restricciones blandas. También permite exportar los horarios en CSV y XLSX.
+
+### Ejecución local
+
+```bash
+uv sync
+uv run uvicorn api:app --reload
+```
+
+Dashboard: http://127.0.0.1:8000/  
+Swagger: http://127.0.0.1:8000/docs
+
+### Despliegue gratuito: Render + Neon
+
+1. Crea una base PostgreSQL gratuita en [Neon](https://neon.tech/) y copia el connection string.
+2. Crea un Web Service en [Render](https://render.com/) desde este repositorio y selecciona `feat/sos-web-dashboard`.
+3. Usa el build command `pip install uv && uv sync --no-dev`.
+4. Usa el start command `uv run uvicorn api:app --host 0.0.0.0 --port $PORT`.
+5. Configura `DATABASE_URL` con el connection string de Neon.
+
+El archivo `render.yaml` contiene un blueprint inicial. El dashboard y la API se ejecutan en un solo servicio; PostgreSQL conserva los datos aunque el filesystem del servicio gratuito sea efímero. SQLite permanece como configuración local por defecto.
+
+> **Seguridad:** esta versión no incluye autenticación. No la expongas con datos operativos reales hasta proteger los endpoints con autenticación y autorización.
