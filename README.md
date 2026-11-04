@@ -49,6 +49,15 @@ SQLite crea `scheduler.db` en el directorio de trabajo de forma predeterminada. 
 SQLITE_PATH=/ruta/absoluta/scheduler.db uv run uvicorn api:app --reload
 ```
 
+## Catálogos de roles y departamentos
+
+Antes de registrar empleados, crea al menos un rol. Desde la sección **Roles & departments** del dashboard puedes crear roles y departamentos/áreas. También están disponibles estos endpoints:
+
+- `GET /roles` y `POST /roles` con cuerpo `{"name":"Supervisor"}`.
+- `GET /areas` y `POST /areas` con cuerpo `{"name":"Operaciones"}`.
+
+El departamento es opcional al crear un empleado; el rol es obligatorio. Los nombres duplicados se rechazan con HTTP 409.
+
 ## Dashboard web
 
 La rama `feat/sos-web-dashboard` incorpora un dashboard responsive servido desde el mismo origen que la API. Incluye overview, gestión de empleados, disponibilidad semanal, generación de horarios, calendario de asignaciones, historial de ejecuciones y configuración de restricciones blandas.
