@@ -2,7 +2,7 @@ services:
   - type: web
     name: sos-scheduler
     runtime: python
-    plan: starter
+    plan: 0.5c-512mb
     branch: feat/sos-web-dashboard
     buildCommand: pip install uv && uv sync --no-dev
     startCommand: uv run uvicorn api:app --host 0.0.0.0 --port $PORT
