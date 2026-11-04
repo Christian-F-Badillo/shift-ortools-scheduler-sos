@@ -55,14 +55,14 @@ La rama `feat/sos-web-dashboard` incorpora un dashboard responsive servido desde
 
 ## Despliegue en Render
 
-El archivo `render.yaml` configura un Web Service con SQLite y un Persistent Disk montado en `/var/data`. La variable `SQLITE_PATH=/var/data/scheduler.db` hace que la base se escriba dentro del volumen persistente.
+El archivo `render.yaml` configura un Web Service con el plan de cómputo pagado más pequeño disponible (`0.5c-512mb`) y un Persistent Disk de 1 GB montado en `/var/data`. La variable `SQLITE_PATH=/var/data/scheduler.db` hace que la base se escriba dentro del volumen persistente.
 
 1. Crea un Blueprint en [Render](https://render.com/) desde este repositorio y selecciona la rama `feat/sos-web-dashboard`.
 2. Revisa el plan del servicio y el disco persistente antes de confirmar la creación.
 3. Render instalará dependencias con `uv sync --no-dev` e iniciará FastAPI.
 4. Al terminar el despliegue, abre la URL del servicio; el dashboard está en `/` y Swagger en `/docs`.
 
-**Importante sobre costos y persistencia:** Render no permite adjuntar Persistent Disks a servicios gratuitos. El plan configurado en el Blueprint es `starter` (plan de pago) porque SQLite necesita almacenamiento persistente para conservar los datos entre reinicios y despliegues. Un servicio Free puede servir para una demostración, pero su filesystem es efímero y no debe usarse como almacenamiento de la base de datos.
+**Importante sobre costos y persistencia:** Render no permite adjuntar Persistent Disks a servicios gratuitos. El plan configurado en el Blueprint es `0.5c-512mb` (plan de pago) porque SQLite necesita almacenamiento persistente para conservar los datos entre reinicios y despliegues. Un servicio Free puede servir para una demostración, pero su filesystem es efímero y no debe usarse como almacenamiento de la base de datos.
 
 Consulta la documentación oficial de [Persistent Disks](https://render.com/docs/disks) y [Blueprints](https://render.com/docs/blueprint-spec) para conocer límites y precios vigentes.
 
