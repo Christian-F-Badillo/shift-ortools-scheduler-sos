@@ -9,10 +9,11 @@ Error mapping:
 """
 
 from datetime import date
+from pathlib import Path
 from typing import Optional
 
 from fastapi import Body, Depends, FastAPI, HTTPException, Query
-from fastapi.responses import Response
+from fastapi.responses import FileResponse, Response
 from sqlalchemy.orm import Session
 
 from backend import service
@@ -45,6 +46,13 @@ from backend.schemas import (
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Scheduler API", version="1.0.0")
+
+DASHBOARD_FILE = Path(__file__).parent / "frontend" / "index.html"
+
+
+@app.get("/", include_in_schema=False)
+def dashboard():
+    return FileResponse(DASHBOARD_FILE)
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
@@ -107,6 +115,14 @@ def update_employee(
 
 
 # ── 3. Availability ────────────────────────────────────────────────────────────
+
+@app.get("/employees/{employee_id}/availability", response_model=list[AvailabilityRead])
+def get_employee_availability(employee_id: int, week_start: date = Query(...), db: Session = Depends(get_db)):
+    try:
+        return service.get_week_availability(db, employee_id, week_start)
+    except NotFoundError as e:
+        raise _404(e)
+
 
 
 @app.put(
