@@ -57,6 +57,30 @@ def list_shifts(db: Session):
     return repo.list_shifts(db)
 
 
+def create_role(db: Session, name: str):
+    clean_name = name.strip()
+    if not clean_name:
+        raise ConflictError("Role name cannot be empty.")
+    if any(r.name.casefold() == clean_name.casefold() for r in repo.list_roles(db)):
+        raise ConflictError(f"Role already exists: {clean_name}")
+    record = repo.create_role(db, clean_name)
+    db.commit()
+    db.refresh(record)
+    return record
+
+
+def create_area(db: Session, name: str):
+    clean_name = name.strip()
+    if not clean_name:
+        raise ConflictError("Area name cannot be empty.")
+    if any(a.name.casefold() == clean_name.casefold() for a in repo.list_areas(db)):
+        raise ConflictError(f"Area already exists: {clean_name}")
+    record = repo.create_area(db, clean_name)
+    db.commit()
+    db.refresh(record)
+    return record
+
+
 # ── Employees ──────────────────────────────────────────────────────────────────
 
 
@@ -77,7 +101,11 @@ def create_employee(
     role_id: int,
     area_id: int | None = None,
 ):
-    emp = repo.create_employee(db, name=name, role_id=role_id, area_id=area_id)
+    if repo.get_role(db, role_id) is None:
+        raise NotFoundError("Role", role_id)
+    if area_id is not None and repo.get_area(db, area_id) is None:
+        raise NotFoundError("Area", area_id)
+    emp = repo.create_employee(db, name=name.strip(), role_id=role_id, area_id=area_id)
     db.commit()
     db.refresh(emp)
     return emp
