@@ -28,6 +28,10 @@ class _OrmBase(BaseModel):
 # ── Catalog: roles & areas ─────────────────────────────────────────────────────
 
 
+class CatalogCreate(BaseModel):
+    name: str
+
+
 class RoleRead(_OrmBase):
     id: int
     name: str
