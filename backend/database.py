@@ -1,17 +1,20 @@
 import os
+from pathlib import Path
 
 from sqlalchemy import create_engine
+from sqlalchemy.engine import URL
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-# SQLite is the local default; use a managed PostgreSQL URL in production.
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./scheduler.db")
-if DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg://", 1)
-elif DATABASE_URL.startswith("postgresql://"):
-    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg://", 1)
+# SQLite is the only supported database. On Render, point SQLITE_PATH to the
+# persistent disk mount (for example: /var/data/scheduler.db).
+SQLITE_PATH = Path(os.getenv("SQLITE_PATH", "./scheduler.db")).expanduser()
+SQLITE_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-_connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
-engine = create_engine(DATABASE_URL, connect_args=_connect_args, pool_pre_ping=True)
+DATABASE_URL = URL.create("sqlite", database=str(SQLITE_PATH))
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"check_same_thread": False, "timeout": 30},
+)
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 
 
