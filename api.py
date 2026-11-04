@@ -21,6 +21,7 @@ from backend.database import Base, engine, get_db
 from backend.exceptions import ConflictError, InfeasibleError, NotFoundError
 from backend.schemas import (
     AreaRead,
+    CatalogCreate,
     AssignmentOverride,
     AssignmentRead,
     AvailabilityRead,
@@ -79,6 +80,22 @@ def get_areas(db: Session = Depends(get_db)):
     return service.list_areas(db)
 
 
+@app.post("/roles", response_model=RoleRead, status_code=201)
+def create_role(body: CatalogCreate, db: Session = Depends(get_db)):
+    try:
+        return service.create_role(db, body.name)
+    except ConflictError as e:
+        raise _409(e)
+
+
+@app.post("/areas", response_model=AreaRead, status_code=201)
+def create_area(body: CatalogCreate, db: Session = Depends(get_db)):
+    try:
+        return service.create_area(db, body.name)
+    except ConflictError as e:
+        raise _409(e)
+
+
 @app.get("/shifts", response_model=list[ShiftRead])
 def get_shifts(db: Session = Depends(get_db)):
     return service.list_shifts(db)
@@ -97,7 +114,12 @@ def get_employees(
 
 @app.post("/employees", response_model=EmployeeRead, status_code=201)
 def create_employee(body: EmployeeCreate, db: Session = Depends(get_db)):
-    return service.create_employee(db, **body.model_dump())
+    try:
+        return service.create_employee(db, **body.model_dump())
+    except NotFoundError as e:
+        raise _404(e)
+    except ConflictError as e:
+        raise _409(e)
 
 
 @app.patch("/employees/{employee_id}", response_model=EmployeeRead)
