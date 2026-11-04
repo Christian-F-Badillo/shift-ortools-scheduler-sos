@@ -39,6 +39,28 @@ def list_areas(db: Session) -> list[Area]:
     return db.query(Area).order_by(Area.name).all()
 
 
+def get_role(db: Session, role_id: int) -> Role | None:
+    return db.get(Role, role_id)
+
+
+def get_area(db: Session, area_id: int) -> Area | None:
+    return db.get(Area, area_id)
+
+
+def create_role(db: Session, name: str) -> Role:
+    record = Role(name=name)
+    db.add(record)
+    db.flush()
+    return record
+
+
+def create_area(db: Session, name: str) -> Area:
+    record = Area(name=name)
+    db.add(record)
+    db.flush()
+    return record
+
+
 def list_shifts(db: Session) -> list[Shift]:
     return db.query(Shift).all()
 
