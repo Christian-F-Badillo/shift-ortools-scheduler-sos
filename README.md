@@ -1,90 +1,86 @@
 # 🕒 Shift Or-tools Scheduler (SOS) API (Optimizador de Horarios de Trabajo)
 
-> Una API REST desarrollada en **FastAPI** y potenciada por el solver **Google OR-Tools (CP-SAT)** para automatizar la generación de horarios de personal bajo turnos rotativos, restricciones legales y permisos individuales.
->
-> _Proyecto creado con dedicación para simplificar la gestión y supervisión de turnos de trabajo._
+> Una API REST desarrollada en **FastAPI** y potenciada por **Google OR-Tools (CP-SAT)** para automatizar la generación de horarios de personal bajo turnos rotativos, restricciones legales y permisos individuales.
 
----
+## ¿Qué problema resuelve?
 
-## 🎯 ¿Qué problema resuelve?
+Coordinar los horarios semanales de equipos de trabajo implica cubrir la demanda mínima y máxima por turno, respetar roles y áreas, gestionar ausencias y evitar combinaciones indeseadas de turnos. SOS automatiza este cálculo mediante programación de restricciones y permite consultar y exportar los calendarios generados.
 
-Coordinar los horarios semanales de equipos de trabajo suele implicar lidiar con múltiples variables complejas:
+## Stack tecnológico
 
-- Cubrir la demanda mínima y máxima de personal por turno y día.
-- Respetar roles y áreas específicas (ej. asegurar al menos un técnico por turno).
-- Gestionar ausencias, vacaciones y permisos médicos de última hora.
-- Evitar prácticas indeseadas como turnos nocturnos seguidos de turnos matutinos (_clopening_).
+- **API y servidor:** FastAPI + Uvicorn.
+- **Optimización:** Google OR-Tools (CP-SAT).
+- **Persistencia:** SQLite + SQLAlchemy.
+- **Frontend:** dashboard web servido por FastAPI.
+- **Entorno:** uv / Python 3.12+.
+- **Pruebas:** pytest + TestClient.
 
-Esta API automatiza este cálculo matemático en milisegundos utilizando Programación de Restricciones, permitiendo generar calendarios óptimos y exportarlos de forma inmediata.
+## Endpoints principales
 
----
+| Módulo | Endpoint base | Descripción |
+| :--- | :--- | :--- |
+| Catálogos | `GET /roles`, `/areas`, `/shifts` | Roles, áreas y turnos. |
+| Empleados | `/employees` | Altas, consultas y actualizaciones de empleados. |
+| Disponibilidad | `/employees/{id}/availability` | Consulta y edición de disponibilidad por fecha. |
+| Requerimientos | `/requirements` | Demanda de personal por semana, turno, rol y área. |
+| Solver | `POST /runs` | Ejecuta el optimizador para una semana. |
+| Asignaciones | `/runs/{id}/assignments` | Consulta y modifica asignaciones generadas. |
+| Exportación | `/runs/{id}/export?format=csv|xlsx` | Descarga horarios en CSV o Excel. |
+| Configuración | `/config/constraints` | Consulta y ajusta restricciones blandas. |
 
-## 🛠️ Stack Tecnológico
+## Instalación y ejecución local
 
-- **Framework Web:** [FastAPI](https://fastapi.tiangolo.com/) (Alto rendimiento y documentación automática interactiva).
-- **Motor de Optimización:** [Google OR-Tools](https://developers.google.com/optimization) (`CP-SAT` Solver).
-- **Base de Datos & ORM:** SQLite + [SQLAlchemy](https://www.sqlalchemy.org/) (Ligero, autocontenido y eficiente).
-- **Gestión de Entorno:** `uv` / Python 3.12+.
-- **Pruebas:** `pytest` & `TestClient`.
-
----
-
-## 🚀 Endpoints Principales de la API
-
-La API está estructurada en 7 módulos funcionales principales:
-
-| Módulo             | Endpoint Base                                      | Descripción                                                                      |
-| :----------------- | :------------------------------------------------- | :------------------------------------------------------------------------------- |
-| **Catálogos**      | `GET /roles`, `/areas`, `/shifts`                  | Consulta los roles de empleados, áreas de trabajo y tipos de turnos disponibles. |
-| **Empleados**      | `GET / POST / PATCH /employees`                    | Gestión de la plantilla de trabajo (altas, ediciones y desactivaciones).         |
-| **Disponibilidad** | `PUT / DELETE /employees/{id}/availability/{date}` | Registro de vacaciones, incapacidades o días libres por empleado.                |
-| **Requerimientos** | `PUT / GET /requirements/...`                      | Configuración de la demanda de personal por día, turno, rol o área.              |
-| **Solver (Runs)**  | `POST /runs`                                       | **El núcleo:** Ejecuta el optimizador de OR-Tools para la semana solicitada.     |
-| **Overrides**      | `PATCH /runs/{id}/assignments/{id}`                | Permite realizar cambios manuales de última hora sobre una asignación generada.  |
-| **Exportación**    | `GET /runs/{id}/export?format=(csv\|xlsx)`         | Descarga el horario listo para imprimir o compartir en formato CSV o Excel.      |
-| **Configuración**  | `GET / PATCH /config/constraints`                  | Ajuste de pesos y prioridades para las restricciones blandas.                    |
-
----
-
-## 📦 Instalación y Ejecución Local
-
-Asegúrate de tener instalado [uv](https://github.com/astral-sh/uv) o tu gestor de entorno preferido de Python.
-
-1. **Clona el repositorio:**
+Requiere Python 3.12+ y [uv](https://docs.astral.sh/uv/).
 
 ```bash
 git clone https://github.com/Christian-F-Badillo/shift-ortools-scheduler-sos.git
-cd shift-craft-api
-```
-
-2. **Instala las dependencias y activa el entorno:**
-
-```bash
+cd shift-ortools-scheduler-sos
 uv sync
-```
-
-3. **Inicia el servidor de desarrollo:**
-
-```bash
 uv run uvicorn api:app --reload
 ```
 
-4. **Explora la documentación interactiva:**
-
-Una vez corriendo el servidor, puedes probar todos los endpoints directamente desde tu navegador en:
-
+- Dashboard: http://127.0.0.1:8000/
 - Swagger UI: http://127.0.0.1:8000/docs
-
 - ReDoc: http://127.0.0.1:8000/redoc
 
-## 🧪 Ejecución de Pruebas
-
-El proyecto cuenta con una suite completa de pruebas unitarias y de integración para asegurar la estabilidad del motor de optimización y las respuestas HTTP:
+SQLite crea `scheduler.db` en el directorio de trabajo de forma predeterminada. Para cambiar su ubicación:
 
 ```bash
-uv run python -m pytest -v
+SQLITE_PATH=/ruta/absoluta/scheduler.db uv run uvicorn api:app --reload
 ```
 
-## 💡 Próximos Pasos (Frontend / Dashboard)
+## Catálogos de roles y departamentos
 
-Construcción de una interfaz visual amigable (Dashboard web) para que la supervisión y carga de permisos se haga mediante clics en un calendario interactivo conectado a esta API.
+Antes de registrar empleados, crea al menos un rol. Desde la sección **Roles & departments** del dashboard puedes crear roles y departamentos/áreas. También están disponibles estos endpoints:
+
+- `GET /roles` y `POST /roles` con cuerpo `{"name":"Supervisor"}`.
+- `GET /areas` y `POST /areas` con cuerpo `{"name":"Operaciones"}`.
+
+El departamento es opcional al crear un empleado; el rol es obligatorio. Los nombres duplicados se rechazan con HTTP 409.
+
+## Dashboard web
+
+La rama `feat/sos-web-dashboard` incorpora un dashboard responsive servido desde el mismo origen que la API. Incluye overview, gestión de empleados y catálogos de roles/departamentos, disponibilidad semanal, generación de horarios, calendario de asignaciones, historial de ejecuciones y configuración de restricciones blandas.
+
+## Despliegue en Render
+
+El archivo `render.yaml` configura un Web Service con el plan de cómputo pagado más pequeño disponible (`0.5c-512mb`) y un Persistent Disk de 1 GB montado en `/var/data`. La variable `SQLITE_PATH=/var/data/scheduler.db` hace que la base se escriba dentro del volumen persistente.
+
+1. Crea un Blueprint en [Render](https://render.com/) desde este repositorio y selecciona la rama `feat/sos-web-dashboard`.
+2. Revisa el plan del servicio y el disco persistente antes de confirmar la creación.
+3. Render instalará dependencias con `uv sync --no-dev` e iniciará FastAPI.
+4. Al terminar el despliegue, abre la URL del servicio; el dashboard está en `/` y Swagger en `/docs`.
+
+**Importante sobre costos y persistencia:** Render no permite adjuntar Persistent Disks a servicios gratuitos. El plan configurado en el Blueprint es `0.5c-512mb` (plan de pago) porque SQLite necesita almacenamiento persistente para conservar los datos entre reinicios y despliegues. Un servicio Free puede servir para una demostración, pero su filesystem es efímero y no debe usarse como almacenamiento de la base de datos.
+
+Consulta la documentación oficial de [Persistent Disks](https://render.com/docs/disks) y [Blueprints](https://render.com/docs/blueprint-spec) para conocer límites y precios vigentes.
+
+## Seguridad
+
+El dashboard y los endpoints de la API todavía no implementan autenticación ni autorización. No despliegues esta versión con datos reales de empleados ni la expongas como servicio operativo hasta añadir autenticación, autorización y protección de todas las rutas de datos. Servir el dashboard y la API desde el mismo origen no sustituye esos controles.
+
+## Pruebas
+
+```bash
+uv run pytest -v
+```

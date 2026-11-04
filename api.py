@@ -9,10 +9,11 @@ Error mapping:
 """
 
 from datetime import date
+from pathlib import Path
 from typing import Optional
 
 from fastapi import Body, Depends, FastAPI, HTTPException, Query
-from fastapi.responses import Response
+from fastapi.responses import FileResponse, Response
 from sqlalchemy.orm import Session
 
 from backend import service
@@ -20,6 +21,7 @@ from backend.database import Base, engine, get_db
 from backend.exceptions import ConflictError, InfeasibleError, NotFoundError
 from backend.schemas import (
     AreaRead,
+    CatalogCreate,
     AssignmentOverride,
     AssignmentRead,
     AvailabilityRead,
@@ -46,6 +48,13 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Scheduler API", version="1.0.0")
 
+DASHBOARD_FILE = Path(__file__).parent / "frontend" / "index.html"
+
+
+@app.get("/", include_in_schema=False)
+def dashboard():
+    return FileResponse(DASHBOARD_FILE)
+
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -71,6 +80,22 @@ def get_areas(db: Session = Depends(get_db)):
     return service.list_areas(db)
 
 
+@app.post("/roles", response_model=RoleRead, status_code=201)
+def create_role(body: CatalogCreate, db: Session = Depends(get_db)):
+    try:
+        return service.create_role(db, body.name)
+    except ConflictError as e:
+        raise _409(e)
+
+
+@app.post("/areas", response_model=AreaRead, status_code=201)
+def create_area(body: CatalogCreate, db: Session = Depends(get_db)):
+    try:
+        return service.create_area(db, body.name)
+    except ConflictError as e:
+        raise _409(e)
+
+
 @app.get("/shifts", response_model=list[ShiftRead])
 def get_shifts(db: Session = Depends(get_db)):
     return service.list_shifts(db)
@@ -89,7 +114,12 @@ def get_employees(
 
 @app.post("/employees", response_model=EmployeeRead, status_code=201)
 def create_employee(body: EmployeeCreate, db: Session = Depends(get_db)):
-    return service.create_employee(db, **body.model_dump())
+    try:
+        return service.create_employee(db, **body.model_dump())
+    except NotFoundError as e:
+        raise _404(e)
+    except ConflictError as e:
+        raise _409(e)
 
 
 @app.patch("/employees/{employee_id}", response_model=EmployeeRead)
@@ -107,6 +137,14 @@ def update_employee(
 
 
 # ── 3. Availability ────────────────────────────────────────────────────────────
+
+@app.get("/employees/{employee_id}/availability", response_model=list[AvailabilityRead])
+def get_employee_availability(employee_id: int, week_start: date = Query(...), db: Session = Depends(get_db)):
+    try:
+        return service.get_week_availability(db, employee_id, week_start)
+    except NotFoundError as e:
+        raise _404(e)
+
 
 
 @app.put(
